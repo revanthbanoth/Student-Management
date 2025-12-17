@@ -9,45 +9,27 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
-    import axios from "axios";
-
     const API_URL = import.meta.env.VITE_API_URL;
 
       const handleLogin = async () => {
-        try {
-          const res = await axios.post(`${API_URL}/auth/login`, {
-          username,
-          password,
-          role: "admin",
-       });
+  try {
+    const res = await axios.post(`${API_URL}/auth/login`, {
+      username,
+      password,
+      role: "admin",
+    });
 
-    console.log(res.data);
+    if (res.data.login) {
+      localStorage.setItem("role", "admin");
+      navigate("/dashboard");
+    } else {
+      setError("Login failed. Please check your credentials.");
+    }
   } catch (err) {
     console.error(err);
-    setError("Login failed. Server error?");
+    setError(err.response?.data?.message || "Login failed. Server error?");
   }
 };
-
-
-            if (res.data.login) {
-                localStorage.setItem('role', role);
-                if (role === 'admin') {
-                    navigate('/dashboard');
-                } else if (role === 'student') {
-                    localStorage.setItem('userId', res.data.id);
-                    navigate('/student/dashboard');
-                } else if (role === 'teacher') {
-                    localStorage.setItem('userId', res.data.id);
-                    navigate('/teacher/dashboard');
-                }
-            } else {
-                setError("Login failed. Please check your credentials."); // More specific error fallback
-            }
-        } catch (err) {
-            console.error(err);
-            setError(err.response?.data?.message || 'Login failed. Server error?');
-        }
-    };
 
     const getRoleColor = () => {
         switch (role) {
