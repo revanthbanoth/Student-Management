@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Login = () => {
-    const { role } = useParams();
+    //const { role } = useParams();
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -21,7 +21,7 @@ const Login = () => {
 
     if (res.data.login) {
       localStorage.setItem("role", "admin");
-      navigate("/admin/dashboard");
+      navigate("/dashboard");
     } else {
       setError("Login failed. Please check your credentials.");
     }
