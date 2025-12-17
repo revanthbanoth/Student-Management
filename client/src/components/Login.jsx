@@ -3,33 +3,42 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Login = () => {
-    //const { role } = useParams();
+    const { role } = useParams();
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
-    const API_URL = import.meta.env.VITE_API_URL;
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
 
-      const handleLogin = async () => {
-  try {
-    const res = await axios.post(`${API_URL}/auth/login`, {
-      username,
-      password,
-      role: "admin",
-    });
+        try {
+            const res = await axios.post(`${API_URL}/auth/login`, {
+                username,
+                password,
+                role: "admin"
+            });
 
-    if (res.data.login) {
-      localStorage.setItem("role", "admin");
-      navigate("/dashboard");
-    } else {
-      setError("Login failed. Please check your credentials.");
-    }
-  } catch (err) {
-    console.error(err);
-    setError(err.response?.data?.message || "Login failed. Server error?");
-  }
-};
+            if (res.data.login) {
+                localStorage.setItem('role', role);
+                if (role === 'admin') {
+                    navigate('/dashboard');
+                } else if (role === 'student') {
+                    localStorage.setItem('userId', res.data.id);
+                    navigate('/student/dashboard');
+                } else if (role === 'teacher') {
+                    localStorage.setItem('userId', res.data.id);
+                    navigate('/teacher/dashboard');
+                }
+            } else {
+                setError("Login failed. Please check your credentials."); // More specific error fallback
+            }
+        } catch (err) {
+            console.error(err);
+            setError(err.response?.data?.message || 'Login failed. Server error?');
+        }
+    };
 
     const getRoleColor = () => {
         switch (role) {
