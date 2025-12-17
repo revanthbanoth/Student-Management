@@ -9,20 +9,25 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
+    import axios from "axios";
 
+    const API_URL = import.meta.env.VITE_API_URL;
+
+      const handleLogin = async () => {
         try {
-            const API_URL = import.meta.env.VITE_API_URL;
+          const res = await axios.post(`${API_URL}/auth/login`, {
+          username,
+          password,
+          role: "admin",
+       });
 
-                    axios.post(`${API_URL}/auth/login`, {
-                    username,
-                   password,
-                  role: "admin"
-                });
+    console.log(res.data);
+  } catch (err) {
+    console.error(err);
+    setError("Login failed. Server error?");
+  }
+};
 
-            });
 
             if (res.data.login) {
                 localStorage.setItem('role', role);
