@@ -14,10 +14,10 @@ const Login = () => {
         setError('');
 
         try {
-            const res = await axios.post('http://localhost:5000/auth/login', {
+            const res = await axios.post(`${API_URL}/auth/login`, {
                 username,
                 password,
-                role
+                role: "admin"
             });
 
             if (res.data.login) {
