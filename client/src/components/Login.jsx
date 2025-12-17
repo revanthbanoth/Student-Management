@@ -21,7 +21,7 @@ const Login = () => {
 
     if (res.data.login) {
       localStorage.setItem("role", "admin");
-      navigate("/dashboard");
+      navigate("/admin/dashboard");
     } else {
       setError("Login failed. Please check your credentials.");
     }
