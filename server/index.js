@@ -29,17 +29,6 @@ app.get('/', (req, res) => {
 mongoose.connect(process.env.MONGO_URI)
     .then(async () => {
         console.log('Connected to MongoDB');
-
-        // Seed Admin if not exists
-        const adminCount = await Admin.countDocuments();
-        if (adminCount === 0) {
-            const newAdmin = new Admin({
-                username: 'admin',
-                password: 'admin123'
-            });
-            await newAdmin.save();
-            console.log("Default Admin Created: admin / admin123");
-        }
     })
     .catch(err => console.error('MongoDB connection error:', err));
 
