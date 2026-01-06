@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import BackButton from './BackButton';
 
 const StudentMarks = () => {
     const [marks, setMarks] = useState([]);
@@ -9,7 +10,7 @@ const StudentMarks = () => {
     useEffect(() => {
         const studentId = localStorage.getItem('userId');
         if (studentId) {
-            axios.get(`http://localhost:5000/academic/marks/${studentId}`)
+            axios.get(`${import.meta.env.VITE_API_URL}/academic/marks/${studentId}`)
                 .then(res => setMarks(res.data))
                 .catch(err => console.log(err));
         }
@@ -19,12 +20,7 @@ const StudentMarks = () => {
         <div className="min-h-screen bg-gray-900 p-8 text-gray-100">
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-blue-400">My Academic Results</h1>
-                <button
-                    onClick={() => navigate('/student/dashboard')}
-                    className="bg-gray-700 text-white px-4 py-2 rounded shadow hover:bg-gray-600 transition border border-gray-600"
-                >
-                    Back to Dashboard
-                </button>
+                <BackButton to="/student/dashboard" label="Back to Dashboard" />
             </div>
 
             <div className="bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-700 max-w-4xl mx-auto">

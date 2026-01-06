@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import BackButton from './BackButton';
 
 const AddMarks = () => {
     const { classId } = useParams();
@@ -8,30 +9,25 @@ const AddMarks = () => {
     const [students, setStudents] = useState([]);
     const [className, setClassName] = useState(''); // To display class name
     const [marksData, setMarksData] = useState({}); // Store marks input for each student
-    const [subjects, setSubjects] = useState(['Math', 'Science', 'English', 'History', 'Geography']); // Example subjects
-    const [selectedSubject, setSelectedSubject] = useState('Math');
+    const [subjects, setSubjects] = useState([
+        'Telugu', 'Hindi', 'English', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Social Studies', 'Computer Science', 'Environmental Science'
+    ]); // Comprehensive subject list
+    const [selectedSubject, setSelectedSubject] = useState('Mathematics');
     const [examType, setExamType] = useState('Unit Test');
 
     useEffect(() => {
-        // Fetch class details and students
-        // We might need an endpoint to get class details by ID, or just fetch students by class ID directly if available.
-        // Based on TeacherDashboard, we have: axios.get(http://localhost:5000/class/class/${id}) ? 
-        // Or if we don't have that, we can fetch all classes and find one? 
-        // Let's assume we can fetch students by class ID or filter them.
-
-        // Actually TeacherDashboard used: axios.get(http://localhost:5000/student/students/grade/${cls.name})
-        // This relies on class name. I should probably fetch the class first to get its name.
-
         const fetchClassAndStudents = async () => {
             try {
-                // Fetch class details to get the name/grade
-                const classRes = await axios.get(`http://localhost:5000/class/class/${classId}`);
+                // Fetch class details
+                const classRes = await axios.get(`${import.meta.env.VITE_API_URL}/class/class/${classId}`);
                 const cls = classRes.data;
-                setClassName(`${cls.name} (${cls.section})`);
 
-                // Fetch students for this class
-                const studentsRes = await axios.get(`http://localhost:5000/student/students/grade/${cls.name}`);
-                setStudents(studentsRes.data);
+                if (cls && cls.name) {
+                    setClassName(`${cls.name} (${cls.section})`);
+                    // Fetch students based on the class name (which represents grade)
+                    const studentsRes = await axios.get(`${import.meta.env.VITE_API_URL}/student/students/grade/${cls.name}`);
+                    setStudents(studentsRes.data);
+                }
             } catch (err) {
                 console.error("Error fetching data:", err);
             }
@@ -60,7 +56,7 @@ const AddMarks = () => {
         }
 
         try {
-            const res = await axios.post('http://localhost:5000/academic/mark', {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/academic/mark`, {
                 student_id: studentId,
                 subject: selectedSubject,
                 score: parseInt(studentMarks.score),
@@ -68,6 +64,14 @@ const AddMarks = () => {
                 exam_type: examType
             });
             if (res.data.recorded) {
+                // Trigger Notification for the student
+                await axios.post(`${import.meta.env.VITE_API_URL}/notification/send`, {
+                    recipient_role: 'student',
+                    recipient_id: studentId,
+                    message: `New marks posted for ${selectedSubject} (${examType})`,
+                    type: 'result'
+                });
+
                 alert(`Marks recorded for student`);
                 // Clear input or show success indicator
             } else {
@@ -83,12 +87,7 @@ const AddMarks = () => {
         <div className="min-h-screen bg-gray-900 p-8 text-gray-100">
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-blue-400">Add Marks - {className}</h1>
-                <button
-                    onClick={() => navigate('/teacher/dashboard')}
-                    className="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
-                >
-                    Back to Dashboard
-                </button>
+                <BackButton to="/teacher/dashboard" label="Back to Dashboard" />
             </div>
 
             <div className="bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-700 mb-6">
@@ -98,7 +97,7 @@ const AddMarks = () => {
                         <select
                             value={selectedSubject}
                             onChange={(e) => setSelectedSubject(e.target.value)}
-                            className="bg-gray-700 border border-gray-600 text-white rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                            className="bg-gray-700 border border-gray-600 text-white rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none transition-all hover:bg-gray-600 focus:scale-105"
                         >
                             {subjects.map(sub => <option key={sub} value={sub}>{sub}</option>)}
                         </select>
@@ -108,7 +107,7 @@ const AddMarks = () => {
                         <select
                             value={examType}
                             onChange={(e) => setExamType(e.target.value)}
-                            className="bg-gray-700 border border-gray-600 text-white rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                            className="bg-gray-700 border border-gray-600 text-white rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none transition-all hover:bg-gray-600 focus:scale-105"
                         >
                             <option value="Unit Test">Unit Test</option>
                             <option value="Mid Term">Mid Term</option>
@@ -131,7 +130,7 @@ const AddMarks = () => {
                         </thead>
                         <tbody className="divide-y divide-gray-700">
                             {students.map(student => (
-                                <tr key={student._id} className="hover:bg-gray-750">
+                                <tr key={student._id} className="hover:bg-gray-700 transition">
                                     <td className="p-4 text-gray-300">{student.roll}</td>
                                     <td className="p-4 font-medium text-white">{student.username}</td>
                                     <td className="p-4">
@@ -141,13 +140,13 @@ const AddMarks = () => {
                                             placeholder="Enter Score"
                                             value={marksData[student._id]?.score || ''}
                                             onChange={(e) => handleInputChange(student._id, 'score', e.target.value)}
-                                            className="bg-gray-700 border border-gray-600 text-white rounded p-2 w-32 focus:ring-2 focus:ring-blue-500 outline-none"
+                                            className="bg-gray-700 border border-gray-600 text-white rounded p-2 w-32 focus:ring-2 focus:ring-blue-500 outline-none transition-all focus:scale-105"
                                         />
                                     </td>
                                     <td className="p-4">
                                         <button
                                             onClick={() => handleSaveMark(student._id)}
-                                            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500 transition"
+                                            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500 transition-all active:scale-95 shadow-lg shadow-green-600/20"
                                         >
                                             Save
                                         </button>

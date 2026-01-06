@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
+import BackButton from '../BackButton';
 
 const AddTeacher = () => {
     const [username, setUsername] = useState('');
@@ -14,7 +15,7 @@ const AddTeacher = () => {
 
     useEffect(() => {
         if (id) {
-            axios.get(`http://localhost:5000/teacher/teacher/${id}`)
+            axios.get(`${import.meta.env.VITE_API_URL}/teacher/teacher/${id}`)
                 .then(res => {
                     const teacher = res.data;
                     setUsername(teacher.username);
@@ -29,7 +30,7 @@ const AddTeacher = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (id) {
-            axios.put(`http://localhost:5000/teacher/teacher/${id}`, {
+            axios.put(`${import.meta.env.VITE_API_URL}/teacher/teacher/${id}`, {
                 username, email, subject, contact
             })
                 .then(res => {
@@ -41,7 +42,7 @@ const AddTeacher = () => {
                 })
                 .catch(err => console.log(err));
         } else {
-            axios.post('http://localhost:5000/teacher/register', {
+            axios.post(`${import.meta.env.VITE_API_URL}/teacher/register`, {
                 username, password, email, subject, contact
             })
                 .then(res => {
@@ -58,6 +59,9 @@ const AddTeacher = () => {
     return (
         <div className="flex justify-center items-center h-full pt-10">
             <div className="bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-md border-t-4 border-green-500 border border-gray-700">
+                <div className="mb-4">
+                    <BackButton to="/dashboard/teachers" />
+                </div>
                 <h2 className="text-2xl font-bold text-white mb-6 text-center">{id ? 'Edit Teacher' : 'Add Teacher'}</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>

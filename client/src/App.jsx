@@ -13,7 +13,12 @@ import TeacherDashboard from './components/TeacherDashboard';
 import AddTeacher from './components/admin/AddTeacher';
 import AddClass from './components/admin/AddClass';
 import StudentMarks from './components/StudentMarks'; // Don't forget to create/import this
+import ViewExams from './components/ViewExams';
+import ViewNotifications from './components/ViewNotifications';
 import AddMarks from './components/AddMarks';
+import ExaminationCell from './components/admin/ExaminationCell';
+import HallTicket from './components/HallTicket';
+
 
 function App() {
   return (
@@ -24,7 +29,12 @@ function App() {
         <Route path="/login/:role" element={<Login />} />
         <Route path="/student/dashboard" element={<StudentDashboard />} />
         <Route path="/student/marks" element={<StudentMarks />} />
+        <Route path="/student/exams" element={<ViewExams />} />
+        <Route path="/student/hallticket/:examId" element={<HallTicket />} />
+        <Route path="/student/notifications" element={<ViewNotifications />} />
         <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
+        <Route path="/teacher/exams" element={<ViewExams />} />
+        <Route path="/teacher/notifications" element={<ViewNotifications />} />
         <Route path="/teacher/class/:classId/marks" element={<AddMarks />} />
         <Route path="/dashboard" element={<AdminDashboard />}>
           <Route index element={<DashboardHome />} />
@@ -36,6 +46,7 @@ function App() {
           <Route path="edit-teacher/:id" element={<AddTeacher />} />
           <Route path="add-student" element={<AddStudent />} />
           <Route path="edit-student/:id" element={<AddStudent />} />
+          <Route path="examination" element={<ExaminationCell />} />
         </Route>
       </Routes>
     </BrowserRouter>

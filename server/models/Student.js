@@ -22,6 +22,10 @@ const studentSchema = new mongoose.Schema({
     gender: {
         type: String,
         required: true
+    },
+    section: {
+        type: String,
+        required: false // Optional for backward compatibility, strict it later
     }
 });
 

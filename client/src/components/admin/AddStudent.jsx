@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
+import BackButton from '../BackButton';
 
 const AddStudent = () => {
     const [username, setUsername] = useState('');
     const [roll, setRoll] = useState('');
     const [password, setPassword] = useState('');
     const [grade, setGrade] = useState('');
+    const [section, setSection] = useState('');
     const [gender, setGender] = useState('');
 
     const navigate = useNavigate();
@@ -14,15 +16,6 @@ const AddStudent = () => {
 
     useEffect(() => {
         if (id) {
-            axios.get('http://localhost:5000/student/students') // Inefficient to fetch all, but we don't have a get-one endpoint yet except findOne maybe?
-            // Actually, usually we have a getById. I'll use the list and filter for now to be safe,
-            // OR I can quickly check if I have a getById. I don't think I made one.
-            // Wait, I made a DELETE /student/:id and UPDATE /student/:id. I didn't make a GET /student/:id.
-            // To be safe and quick, I'll fetch all and find one, OR just add a get endpoint.
-            // Adding a get endpoint is better.
-            // Let's add GET /student/:id to backend first? No, I want to finish this file.
-            // I'll assume I can just loop through for now or I'll add the endpoint in the next step.
-            // Actually, I'll add the endpoint in the next step.
             fetchStudent();
         }
     }, [id]);
@@ -30,11 +23,12 @@ const AddStudent = () => {
     const fetchStudent = async () => {
         try {
             // I will implement this route momentarily
-            const res = await axios.get(`http://localhost:5000/student/student/${id}`);
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/student/student/${id}`);
             const student = res.data;
             setUsername(student.username);
             setRoll(student.roll);
             setGrade(student.grade);
+            setSection(student.section || '');
             setGender(student.gender);
             // Password usually not sent back for security, keep blank to leave unchanged?
             // Logic below needs to handle blank password updates if editing.
@@ -46,10 +40,11 @@ const AddStudent = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (id) {
-            axios.put(`http://localhost:5000/student/student/${id}`, {
+            axios.put(`${import.meta.env.VITE_API_URL}/student/student/${id}`, {
                 username,
                 roll,
                 grade,
+                section,
                 // password, // We might not want to update password here unless provided
             })
                 .then(res => {
@@ -61,11 +56,12 @@ const AddStudent = () => {
                 })
                 .catch(err => console.log(err));
         } else {
-            axios.post('http://localhost:5000/student/register', {
+            axios.post(`${import.meta.env.VITE_API_URL}/student/register`, {
                 username,
                 roll,
                 password,
                 grade,
+                section,
                 gender
             })
                 .then(res => {
@@ -83,6 +79,9 @@ const AddStudent = () => {
     return (
         <div className="flex justify-center items-center h-full pt-10">
             <div className="bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-md border-t-4 border-blue-500 border border-gray-700">
+                <div className="mb-4">
+                    <BackButton to="/dashboard/students" />
+                </div>
                 <h2 className="text-2xl font-bold text-white mb-6 text-center">{id ? 'Edit Student' : 'Add Student'}</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
@@ -128,6 +127,17 @@ const AddStudent = () => {
                             className="w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             value={grade}
                             onChange={(e) => setGrade(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-gray-300 text-sm font-bold mb-2">Section</label>
+                        <input
+                            type="text"
+                            placeholder="Enter Section"
+                            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value={section}
+                            onChange={(e) => setSection(e.target.value)}
                             required
                         />
                     </div>

@@ -12,9 +12,19 @@ router.get('/students/grade/:grade', async (req, res) => {
     }
 });
 
+router.get('/students/grade/:grade/section/:section', async (req, res) => {
+    try {
+        const { grade, section } = req.params;
+        const students = await Student.find({ grade, section });
+        return res.json(students);
+    } catch (err) {
+        return res.json(err);
+    }
+});
+
 router.post('/register', async (req, res) => {
     try {
-        const { username, roll, password, grade, gender } = req.body;
+        const { username, roll, password, grade, section, gender } = req.body;
         const student = await Student.findOne({ roll });
         if (student) {
             return res.json({ message: "Student already registered" });
@@ -28,10 +38,33 @@ router.post('/register', async (req, res) => {
             roll,
             password,
             grade,
+            section,
             gender
         });
 
         await newStudent.save();
+
+        // Notification Logic
+        try {
+            const Class = require('../models/Class');
+            const Notification = require('../models/Notification');
+
+            // Find class to get teacher
+            const cls = await Class.findOne({ name: grade, section: section });
+            if (cls && cls.teacher_id) {
+                const notif = new Notification({
+                    userId: cls.teacher_id,
+                    userType: 'teacher',
+                    message: `New student ${username} (Roll: ${roll}) has been added to your class ${grade}-${section}.`,
+                    type: 'alert'
+                });
+                await notif.save();
+            }
+        } catch (notifErr) {
+            console.log("Notification error:", notifErr);
+            // Don't fail the registration if notification fails
+        }
+
         return res.json({ registered: true });
 
     } catch (err) {

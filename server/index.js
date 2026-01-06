@@ -20,13 +20,18 @@ app.use('/dashboard', require('./routes/dashboard'));
 app.use('/teacher', require('./routes/teacher'));
 app.use('/class', require('./routes/class'));
 app.use('/academic', require('./routes/academic'));
+app.use('/notification', require('./routes/notification'));
+app.use('/exam', require('./routes/exam'));
 
 app.get('/', (req, res) => {
     res.send('Welcome to the Student Management System API');
 });
 
+// Serve uploads
+app.use('/uploads', express.static('uploads'));
+
 // Database Connection
-mongoose.connect(process.env.MONGO_URL)
+mongoose.connect(process.env.MONGO_URI)
     .then(async () => {
         console.log('Connected to MongoDB');
 

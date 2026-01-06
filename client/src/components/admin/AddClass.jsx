@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import BackButton from '../BackButton';
 
 const AddClass = () => {
     const [name, setName] = useState('');
@@ -12,14 +13,14 @@ const AddClass = () => {
 
     useEffect(() => {
         // Fetch teachers to assign to class
-        axios.get('http://localhost:5000/teacher/teachers')
+        axios.get(`${import.meta.env.VITE_API_URL}/teacher/teachers`)
             .then(res => setTeachers(res.data))
             .catch(err => console.log(err));
     }, []);
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.post('http://localhost:5000/class/create', {
+        axios.post(`${import.meta.env.VITE_API_URL}/class/create`, {
             name, section, teacher_id
         })
             .then(res => {
@@ -35,6 +36,9 @@ const AddClass = () => {
     return (
         <div className="flex justify-center items-center h-full pt-10">
             <div className="bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-md border-t-4 border-purple-500 border border-gray-700">
+                <div className="mb-4">
+                    <BackButton to="/dashboard/classes" />
+                </div>
                 <h2 className="text-2xl font-bold text-white mb-6 text-center">Add Class</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
